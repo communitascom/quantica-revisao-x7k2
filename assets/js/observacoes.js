@@ -19,7 +19,7 @@
   function le(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 
   /* ------------------------------------------------------------ armazenamento */
-  function hdr(){ return {'apikey':C.key,'Authorization':'Bearer '+C.key,'Content-Type':'application/json'}; }
+  function hdr(){ var h={'apikey':C.key,'Content-Type':'application/json'}; if(String(C.key).indexOf('eyJ')===0) h['Authorization']='Bearer '+C.key; return h; }
   function demoLer(){ try{ return JSON.parse(le(K_DEMO)||'[]'); }catch(e){ return []; } }
   var API={
     demo:DEMO,

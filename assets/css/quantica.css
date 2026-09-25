@@ -1033,5 +1033,26 @@ main h1{line-height:1.1}
 .como-comentar .passos{max-width:none}
 .como-comentar p{margin-top:16px}
 
+/* versões (sem e com laboratório) */
+.areas3.duas-areas{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:900px){.areas3.duas-areas{grid-template-columns:minmax(0,1fr)}}
+.trajetoria{grid-template-columns:repeat(var(--n,4),minmax(0,1fr))}
+.versoes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.versao{background:#fff;border:1px solid var(--border);border-top:4px solid var(--azul);padding:32px;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.versao.com{border-top-color:var(--s-lab)}
+.versao h2{font-size:30px;max-width:none}
+.versao p{font-size:17px;color:#3a3f45;max-width:44ch}
+.versao .acoes{margin-top:6px}
+@media (max-width:900px){.versoes{grid-template-columns:minmax(0,1fr)}.versao{padding:24px 20px}.versao .btn{white-space:normal;height:auto;min-height:52px;padding:12px 20px}}
+
+/* escada de automação no celular: colunas que encolhem */
+@media (max-width:900px){
+  .painel{padding:20px}
+  .escada,.degrau{min-width:0}
+  .degrau{grid-template-columns:minmax(0,1fr) 96px;padding:14px}
+  .degrau .img{height:72px}
+  .degrau b{font-size:17px;overflow-wrap:anywhere}
+}
+
 /* cantos retos em tudo (base visual 23/09) */
 *,*::before,*::after{border-radius:0!important}

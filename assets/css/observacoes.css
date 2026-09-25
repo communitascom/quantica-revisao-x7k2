@@ -8,15 +8,17 @@
 .qao-pin.st-resolvido{background:#6E6E6E}
 .qao-pin.st-descartado{background:#6E6E6E;opacity:.55}
 
-.qao-pill{position:fixed;left:24px;bottom:24px;z-index:2147483100;display:flex;background:#072F4A;color:#fff;box-shadow:0 8px 24px rgba(7,47,74,.3)}
-.qao-pill button{font:inherit;color:#fff;background:transparent;border:0;cursor:pointer;min-height:48px;padding:0 18px;font-weight:600;transition:background .15s}
+/* Botão docado na borda direita, na margem livre: não cobre título nem texto */
+.qao-pill{position:fixed;right:0;bottom:112px;z-index:2147483100;display:flex;flex-direction:column;align-items:stretch;width:44px;background:#072F4A;color:#fff;box-shadow:-4px 6px 20px rgba(7,47,74,.3)}
+.qao-pill button{font:inherit;color:#fff;background:transparent;border:0;cursor:pointer;padding:0;font-weight:600;transition:background .15s}
 .qao-pill button:hover{background:rgba(255,255,255,.12)}
 .qao-pill button:active{background:rgba(255,255,255,.2)}
 .qao-pill button:focus-visible{outline:2px solid #94BA31;outline-offset:-4px}
+.qao-main{writing-mode:vertical-rl;transform:rotate(180deg);padding:16px 0!important;min-height:64px;letter-spacing:.02em;white-space:nowrap}
 .qao-main[aria-pressed="true"]{background:#94BA31;color:#072F4A}
 .qao-main[aria-pressed="true"]:hover{background:#A5C74A}
-.qao-lista{min-width:48px;border-left:1px solid rgba(255,255,255,.25);font-family:"DM Mono",ui-monospace,monospace}
-.qao-pill.demo::after{content:"DEMO";position:absolute;top:-10px;left:0;background:#FFF4DC;color:#8a5a0c;border:1px solid #D9A44E;font:500 11px/1 "DM Mono",monospace;letter-spacing:.08em;padding:3px 6px}
+.qao-lista{min-height:44px;border-top:1px solid rgba(255,255,255,.25);font-family:"DM Mono",ui-monospace,monospace}
+.qao-demo-tag{display:block;background:#FFF4DC;color:#8a5a0c;font:500 10px/1 "DM Mono",monospace;letter-spacing:.06em;text-align:center;padding:5px 0}
 .qao-pill.sem-rede .qao-lista{background:#8a5a0c}
 
 .qao-barra{position:fixed;top:0;left:0;right:0;z-index:2147483200;background:#94BA31;color:#072F4A;text-align:center;font-weight:600;padding:10px 16px}
@@ -57,7 +59,7 @@ body.qao-on .qao *,body.qao-on .qao-pin{cursor:pointer}
 .qao-txt.qao-txt{white-space:pre-wrap;margin:4px 0;font-size:16px}
 .qao-resp{margin:4px 0 0;padding:8px 10px;background:#F1F6E7;font-size:14px}
 
-.qao-painel{position:fixed;left:24px;bottom:84px;z-index:2147483300;width:360px;max-width:calc(100vw - 24px);max-height:60vh;display:flex;flex-direction:column;background:#fff;border:1px solid #C9D3DC;border-top:4px solid #0B466E;box-shadow:0 16px 40px rgba(7,47,74,.28)}
+.qao-painel{position:fixed;right:56px;bottom:112px;z-index:2147483300;width:360px;max-width:calc(100vw - 24px);max-height:60vh;display:flex;flex-direction:column;background:#fff;border:1px solid #C9D3DC;border-top:4px solid #0B466E;box-shadow:0 16px 40px rgba(7,47,74,.28)}
 .qao-lista-c{overflow:auto;padding:0 6px 6px}
 .qao-item{display:flex;gap:10px;width:100%;text-align:left;padding:10px 8px;border:0;border-bottom:1px solid #E3E7EB;background:#fff;cursor:pointer;font:inherit;align-items:flex-start}
 .qao-item:hover{background:#F5F7F9}
@@ -67,15 +69,18 @@ body.qao-on .qao *,body.qao-on .qao-pin{cursor:pointer}
 .qao-off{margin-left:auto;font-size:12px;color:#8a5a0c;white-space:nowrap}
 .qao-vazio{padding:10px 8px;color:#3a3f45;margin:0}
 .qao-todas{display:block;padding:12px 14px;border-top:1px solid #E3E7EB;font-weight:600;color:#0B466E;text-decoration:underline}
-.qao-toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:2147483400;background:#072F4A;color:#fff;padding:12px 18px;max-width:calc(100vw - 32px);box-shadow:0 8px 24px rgba(7,47,74,.3)}
+.qao-toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);z-index:2147483400;background:#072F4A;color:#fff;padding:12px 18px;max-width:calc(100vw - 32px);box-shadow:0 8px 24px rgba(7,47,74,.3)}
 
-/* celular: janelas viram folha na parte de baixo */
-@media (max-width:600px){
-  .qao-pill{left:16px;bottom:16px}
-  .pg-ficha .qao-pill{bottom:88px}
+/* celular: botão compacto no canto inferior esquerdo (a margem é estreita); janelas viram folha embaixo */
+@media (max-width:900px){
+  .qao-pill{right:auto;left:12px;bottom:12px;width:auto;flex-direction:row;box-shadow:0 6px 18px rgba(7,47,74,.3)}
+  .qao-main{writing-mode:horizontal-tb;transform:none;padding:0 14px!important;min-height:44px;font-size:14px}
+  .qao-lista{min-width:44px;border-top:0;border-left:1px solid rgba(255,255,255,.25)}
+  .qao-demo-tag{writing-mode:vertical-rl;transform:rotate(180deg);padding:0 5px;display:grid;place-items:center}
+  .pg-ficha .qao-pill{bottom:84px}
   .qao-pop{left:8px!important;right:8px!important;top:auto!important;bottom:8px!important;width:auto;max-width:none;max-height:86vh;overflow:auto}
-  .qao-painel{left:8px;right:8px;bottom:72px;width:auto;max-width:none}
-  .qao-toast{bottom:84px}
+  .qao-painel{left:8px;right:8px;bottom:68px;width:auto;max-width:none}
+  .qao-toast{bottom:68px}
 }
 @media (prefers-reduced-motion:reduce){.qao-pin,.qao-env,.qao-pill button{transition:none}}
 @media print{.qao,.qao-pins{display:none}}
@@ -101,3 +106,6 @@ body.qao-on .qao *,body.qao-on .qao-pin{cursor:pointer}
 .obs-abrir{font-weight:600;color:#0B466E;border-bottom:1px solid currentColor;display:inline-block}
 .obs-vazio{color:#3a3f45;padding:16px 0}
 @media (max-width:900px){.obs-filtros{grid-template-columns:minmax(0,1fr)}}
+
+/* o atributo hidden sempre vence o display dos componentes */
+.qao [hidden],.qao-pins [hidden],.qao-painel[hidden],.qao-pop[hidden],.qao-toast[hidden],.qao-barra[hidden],.qao-hover[hidden]{display:none!important}

@@ -7,7 +7,8 @@
   var C=window.QA_OBS||{}, doc=document;
   var DEMO=!(C.url&&C.key), TAB=C.tabela||'observacoes';
   var K_DEMO='qa_obs_demo_v1', K_AUTOR='qa_obs_autor_v1';
-  var PAG=(location.pathname.split('/').pop()||'index.html');
+  var MV=location.pathname.match(/\/((?:sem|com)-laboratorio)\/([^\/]+)$/), VER=MV?MV[1]:'';
+  var PAG=MV?(MV[1]+'/'+MV[2]):(location.pathname.split('/').pop()||'index.html');
   var TIPOS=[['texto','Texto'],['visual','Visual'],['estrutura','Estrutura'],['duvida','Dúvida']];
   var STATUS={novo:'Nova',em_analise:'Em análise',resolvido:'Resolvida',descartado:'Descartada'};
   var MOVIMENTO=!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -40,6 +41,7 @@
 
   function dataBr(iso){ try{ return new Date(iso).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
   function tituloCurto(t){ return (t||'').replace(/^Quântica Analítica \| /,'').replace(/ \(média fidelidade\)$/,''); }
+  function rotPagina(o){ var p=o.pagina||'', pre=p.indexOf('sem-laboratorio/')===0?'Sem laboratório · ':(p.indexOf('com-laboratorio/')===0?'Com laboratório · ':''); return pre+(tituloCurto(o.titulo)||p); }
   function tipoRot(t){ for(var i=0;i<TIPOS.length;i++){ if(TIPOS[i][0]===t) return TIPOS[i][1]; } return 'Geral'; }
 
   /* ------------------------------------------------------------ painel (página Observações) */
@@ -58,7 +60,7 @@
   var toast=el('div','qao-toast'); toast.hidden=true; toast.setAttribute('role','status');
   raiz.appendChild(pill); raiz.appendChild(barra); raiz.appendChild(pop); raiz.appendChild(painelLista); raiz.appendChild(toast); raiz.appendChild(hover);
   doc.body.appendChild(raiz); doc.body.appendChild(camada);
-  if(DEMO){ pill.classList.add('demo'); pill.title='Modo demonstração: as observações ficam só neste navegador e não são enviadas.'; }
+  if(DEMO){ pill.classList.add('demo'); pill.title='Modo demonstração: as observações ficam só neste navegador e não são enviadas.'; var tg=el('span','qao-demo-tag','DEMO'); pill.insertBefore(tg,pill.firstChild); }
 
   function dentroFerramenta(n){ return n&&n.closest&&n.closest('.qao,.qao-pins'); }
   function esc(s){ return (window.CSS&&CSS.escape)?CSS.escape(s):String(s).replace(/[^a-zA-Z0-9_-]/g,'\\$&'); }
@@ -198,7 +200,7 @@
       c.appendChild(b);
     });
     painelLista.appendChild(c);
-    var a=el('a','qao-todas','Ver as observações de todas as páginas'); a.href='Quantica_Site_Layout_Observacoes.html'; painelLista.appendChild(a);
+    var a=el('a','qao-todas','Ver as observações de todas as páginas'); a.href=(VER?'../':'')+'Quantica_Site_Layout_Observacoes.html'; painelLista.appendChild(a);
     painelLista.hidden=false; bLista.setAttribute('aria-expanded','true');
   }
   bLista.addEventListener('click',function(){ painelLista.hidden?abreLista():fechaLista(); });
@@ -234,7 +236,7 @@
       if(!f.length){ lista.appendChild(el('p','obs-vazio','Nenhuma observação com esses filtros.')); return; }
       var grupos={}, ordem=[]; f.forEach(function(o){ if(!grupos[o.pagina]){ grupos[o.pagina]=[]; ordem.push(o.pagina); } grupos[o.pagina].push(o); });
       ordem.forEach(function(pg){
-        var g=el('section','obs-grupo'); var h=el('h2',null,tituloCurto(grupos[pg][0].titulo)||pg); g.appendChild(h);
+        var g=el('section','obs-grupo'); var h=el('h2',null,rotPagina(grupos[pg][0])); g.appendChild(h);
         grupos[pg].forEach(function(o){
           var c=el('article','obs-card');
           var top=el('p','obs-topo'); top.appendChild(el('span','obs-tag',tipoRot(o.tipo))); top.appendChild(el('span','obs-tag st-'+(o.status||'novo'),STATUS[o.status]||'Nova')); top.appendChild(el('span','obs-quem',o.autor+' · '+dataBr(o.criado_em)+' · tela de '+(o.vw||'?')+' px')); c.appendChild(top);
@@ -248,7 +250,7 @@
       });
     }
     function monta(){
-      var ps={}; dados.forEach(function(o){ ps[o.pagina]=tituloCurto(o.titulo)||o.pagina; });
+      var ps={}; dados.forEach(function(o){ ps[o.pagina]=rotPagina(o); });
       Object.keys(ps).sort().forEach(function(k){ var op=el('option',null,ps[k]); op.value=k; fP.appendChild(op); });
       render();
     }

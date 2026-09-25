@@ -1,0 +1,103 @@
+/* Ferramenta de observações do cliente. Cantos retos, azul da marca, verde só na ação de enviar. */
+.qao,.qao-pins{font-family:"Hanken Grotesk",system-ui,sans-serif;font-size:15px;line-height:1.45;color:#1A1A1A}
+.qao *{box-sizing:border-box}
+.qao-pins{position:absolute;top:0;left:0;width:0;height:0;z-index:2147483000}
+.qao-pin{position:absolute;width:28px;height:28px;transform:translate(-50%,-50%);border:2px solid #fff;background:#0B466E;color:#fff;font:600 13px/1 "DM Mono",ui-monospace,monospace;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(7,47,74,.35);padding:0;transition:transform .12s ease-out}
+.qao-pin:hover,.qao-pin:focus-visible{transform:translate(-50%,-50%) scale(1.12);outline:2px solid #94BA31;outline-offset:2px}
+.qao-pin.st-em_analise{background:#177785}
+.qao-pin.st-resolvido{background:#6E6E6E}
+.qao-pin.st-descartado{background:#6E6E6E;opacity:.55}
+
+.qao-pill{position:fixed;left:24px;bottom:24px;z-index:2147483100;display:flex;background:#072F4A;color:#fff;box-shadow:0 8px 24px rgba(7,47,74,.3)}
+.qao-pill button{font:inherit;color:#fff;background:transparent;border:0;cursor:pointer;min-height:48px;padding:0 18px;font-weight:600;transition:background .15s}
+.qao-pill button:hover{background:rgba(255,255,255,.12)}
+.qao-pill button:active{background:rgba(255,255,255,.2)}
+.qao-pill button:focus-visible{outline:2px solid #94BA31;outline-offset:-4px}
+.qao-main[aria-pressed="true"]{background:#94BA31;color:#072F4A}
+.qao-main[aria-pressed="true"]:hover{background:#A5C74A}
+.qao-lista{min-width:48px;border-left:1px solid rgba(255,255,255,.25);font-family:"DM Mono",ui-monospace,monospace}
+.qao-pill.demo::after{content:"DEMO";position:absolute;top:-10px;left:0;background:#FFF4DC;color:#8a5a0c;border:1px solid #D9A44E;font:500 11px/1 "DM Mono",monospace;letter-spacing:.08em;padding:3px 6px}
+.qao-pill.sem-rede .qao-lista{background:#8a5a0c}
+
+.qao-barra{position:fixed;top:0;left:0;right:0;z-index:2147483200;background:#94BA31;color:#072F4A;text-align:center;font-weight:600;padding:10px 16px}
+.qao-hover{position:fixed;z-index:2147482900;pointer-events:none;outline:2px solid #155F92;background:rgba(21,95,146,.12)}
+body.qao-on{cursor:crosshair}
+body.qao-on *{cursor:crosshair}
+body.qao-on .qao *,body.qao-on .qao-pin{cursor:pointer}
+
+.qao-pop{position:fixed;z-index:2147483300;width:340px;max-width:calc(100vw - 24px);background:#fff;border:1px solid #C9D3DC;border-top:4px solid #0B466E;box-shadow:0 16px 40px rgba(7,47,74,.28)}
+.qao-pop-h{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 4px}
+.qao-pop-h strong{font-family:"Outfit",system-ui,sans-serif;font-size:18px;color:#0B466E}
+.qao-x{width:36px;height:36px;border:0;background:transparent;font-size:24px;line-height:1;cursor:pointer;color:#3a3f45}
+.qao-x:hover{color:#0B466E}
+.qao-form,.qao-ver{padding:4px 14px 14px;display:flex;flex-direction:column;gap:6px}
+.qao-form label{font-weight:600;font-size:14px;color:#0B466E}
+.qao-form textarea,.qao-form input[type="text"],.qao-form input[type="email"]{font:inherit;border:1px solid #76828F;padding:9px 10px;width:100%;color:#1A1A1A;background:#fff}
+.qao-form textarea{resize:vertical;min-height:88px}
+.qao-form textarea:focus,.qao-form input:focus{outline:2px solid #0B466E;outline-offset:1px}
+.qao-tipos{border:0;padding:0;margin:2px 0;display:flex;flex-wrap:wrap;gap:6px}
+.qao-tipos legend{font-weight:600;font-size:14px;color:#0B466E;margin-bottom:4px;padding:0}
+.qao-tipo{display:inline-flex;font-weight:500!important;cursor:pointer}
+.qao-tipo input{position:absolute;opacity:0;width:1px;height:1px}
+.qao-tipo span{border:1px solid #C9D3DC;padding:7px 12px;font-size:14px;min-height:36px;display:inline-flex;align-items:center;background:#fff;color:#0B466E}
+.qao-tipo input:checked+span{background:#0B466E;border-color:#0B466E;color:#fff}
+.qao-tipo input:focus-visible+span{outline:2px solid #94BA31;outline-offset:2px}
+.qao-ctx{margin:0;font-size:13px;color:#3a3f45;max-height:3.9em;overflow:hidden}
+.qao-ctx span{font-family:"DM Mono",monospace;font-size:12px;color:#6E6E6E}
+.qao-demo{margin:2px 0;background:#FFF4DC;border:1px dashed #D9A44E;color:#8a5a0c;padding:8px 10px;font-size:13px}
+.qao-status{margin:0;min-height:1.2em;color:#B00020;font-size:13px}
+.qao-acoes{display:flex;gap:8px}
+.qao-env{flex:1;min-height:46px;border:0;background:#94BA31;color:#072F4A;font:600 15px "Hanken Grotesk",system-ui,sans-serif;cursor:pointer;transition:background .15s,transform .1s}
+.qao-env:hover{background:#A5C74A}.qao-env:active{transform:scale(.98)}.qao-env:disabled{opacity:.6;cursor:wait}
+.qao-can{min-height:46px;padding:0 16px;border:1px solid #C9D3DC;background:#fff;color:#0B466E;font:600 15px "Hanken Grotesk",system-ui,sans-serif;cursor:pointer}
+.qao-meta{margin:0;color:#3a3f45}.qao-meta strong{color:#0B466E}
+.qao-tags{margin:0;display:flex;gap:6px}
+.qao-tag{font:500 12px "DM Mono",monospace;border:1px solid #C9D3DC;padding:3px 8px;color:#0B466E;background:#EAF3F7}
+.qao-tag.st-resolvido,.qao-tag.st-descartado{background:#F5F7F9;color:#6E6E6E}
+.qao-txt.qao-txt{white-space:pre-wrap;margin:4px 0;font-size:16px}
+.qao-resp{margin:4px 0 0;padding:8px 10px;background:#F1F6E7;font-size:14px}
+
+.qao-painel{position:fixed;left:24px;bottom:84px;z-index:2147483300;width:360px;max-width:calc(100vw - 24px);max-height:60vh;display:flex;flex-direction:column;background:#fff;border:1px solid #C9D3DC;border-top:4px solid #0B466E;box-shadow:0 16px 40px rgba(7,47,74,.28)}
+.qao-lista-c{overflow:auto;padding:0 6px 6px}
+.qao-item{display:flex;gap:10px;width:100%;text-align:left;padding:10px 8px;border:0;border-bottom:1px solid #E3E7EB;background:#fff;cursor:pointer;font:inherit;align-items:flex-start}
+.qao-item:hover{background:#F5F7F9}
+.qao-n{flex:none;width:26px;height:26px;background:#0B466E;color:#fff;font:600 12px/26px "DM Mono",monospace;text-align:center}
+.qao-item-t{display:flex;flex-direction:column;font-size:14px}
+.qao-item-t strong{color:#0B466E}
+.qao-off{margin-left:auto;font-size:12px;color:#8a5a0c;white-space:nowrap}
+.qao-vazio{padding:10px 8px;color:#3a3f45;margin:0}
+.qao-todas{display:block;padding:12px 14px;border-top:1px solid #E3E7EB;font-weight:600;color:#0B466E;text-decoration:underline}
+.qao-toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:2147483400;background:#072F4A;color:#fff;padding:12px 18px;max-width:calc(100vw - 32px);box-shadow:0 8px 24px rgba(7,47,74,.3)}
+
+/* celular: janelas viram folha na parte de baixo */
+@media (max-width:600px){
+  .qao-pill{left:16px;bottom:16px}
+  .pg-ficha .qao-pill{bottom:88px}
+  .qao-pop{left:8px!important;right:8px!important;top:auto!important;bottom:8px!important;width:auto;max-width:none;max-height:86vh;overflow:auto}
+  .qao-painel{left:8px;right:8px;bottom:72px;width:auto;max-width:none}
+  .qao-toast{bottom:84px}
+}
+@media (prefers-reduced-motion:reduce){.qao-pin,.qao-env,.qao-pill button{transition:none}}
+@media print{.qao,.qao-pins{display:none}}
+
+/* painel de observações (página Observações) */
+.obs-topo-p{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 0}
+.obs-filtros{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:24px 0 8px}
+.obs-filtros label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:14px;color:#0B466E}
+.obs-filtros select,.obs-filtros input{font:inherit;height:46px;border:1px solid #76828F;padding:0 12px;background:#fff;color:#1A1A1A;min-width:0}
+#obs-resumo{margin:12px 0 32px;color:#3a3f45}
+.obs-demo{background:#FFF4DC;border:1px dashed #D9A44E;color:#8a5a0c;padding:10px 14px;margin:0 0 20px}
+.obs-grupo{margin-top:36px}
+.obs-grupo h2{font-size:24px;max-width:none;margin-bottom:12px}
+.obs-card{background:#fff;border:1px solid #E3E7EB;border-top:3px solid #0B466E;padding:18px 20px;margin-bottom:12px}
+.obs-topo{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 8px}
+.obs-tag{font:500 12px "DM Mono",monospace;border:1px solid #C9D3DC;padding:3px 8px;color:#0B466E;background:#EAF3F7}
+.obs-tag.st-resolvido,.obs-tag.st-descartado{background:#F5F7F9;color:#6E6E6E}
+.obs-quem{font-size:14px;color:#3a3f45}
+.obs-txt{white-space:pre-wrap;font-size:17px;margin:4px 0 8px}
+.obs-ctx{font-size:14px;color:#3a3f45;margin:0 0 8px}
+.obs-ctx span{font-family:"DM Mono",monospace;font-size:12px;color:#6E6E6E}
+.obs-resp{background:#F1F6E7;padding:8px 10px;font-size:15px;margin:0 0 8px}
+.obs-abrir{font-weight:600;color:#0B466E;border-bottom:1px solid currentColor;display:inline-block}
+.obs-vazio{color:#3a3f45;padding:16px 0}
+@media (max-width:900px){.obs-filtros{grid-template-columns:minmax(0,1fr)}}

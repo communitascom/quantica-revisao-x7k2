@@ -1,0 +1,25 @@
+# Mantém acordado o projeto Supabase das observações (quantica-revisao-site).
+# O plano gratuito pausa o projeto depois de 7 dias sem uso; esta consulta roda a cada 3 dias.
+# Usa a chave anon que já é pública no site (assets/js/observacoes-config.js), só para leitura.
+name: Manter Supabase ativo
+
+on:
+  schedule:
+    - cron: "17 11 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Consulta a tabela de observações
+        run: |
+          CFG=assets/js/observacoes-config.js
+          URL=$(grep -o 'https://[a-z0-9]*\.supabase\.co' "$CFG")
+          KEY=$(grep -o 'eyJ[^"]*' "$CFG")
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' -m 30 \
+            "$URL/rest/v1/observacoes?select=id&limit=1" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "Supabase respondeu HTTP $CODE"
+          test "$CODE" = "200"

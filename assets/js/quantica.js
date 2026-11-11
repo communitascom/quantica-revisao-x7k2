@@ -122,4 +122,14 @@
 
   /* filtros de conteúdo (biblioteca, blog): só marca o chip, conteúdo real vem do WordPress */
   $$('.filtro-conteudo').forEach(function(g){ g.addEventListener('click',function(e){ var x=e.target.closest('.chip'); if(!x)return; $$('.chip',g).forEach(function(y){y.classList.toggle('on',y===x); y.setAttribute('aria-pressed',y===x)}); var v=x.dataset.v; $$('[data-cat]').forEach(function(c){ c.style.display=(v==='todos'||c.dataset.cat.split(' ').indexOf(v)>-1)?'':'none'; }); }); });
+  /* comparação entre rodadas: botão fixo que abre a mesma página na outra rodada (Rodada 1 fica congelada em /, a Rodada 2 em /rodada-2/) */
+  (function(){
+    var m=location.pathname.match(/^(.*?\/)(rodada-2\/)?((?:sem|com)-laboratorio(?:-nova)?\/[^\/]+)$/); if(!m) return;
+    var r2=!!m[2], a=doc.createElement('a');
+    a.href=m[1]+(r2?'':'rodada-2/')+m[3];
+    a.textContent=r2?'Rodada 2 · 11/11 · ver a Rodada 1':'Rodada 1 · 23/10 · ver a Rodada 2';
+    a.setAttribute('data-rodada',r2?'2':'1');
+    a.style.cssText='position:fixed;left:16px;bottom:16px;z-index:70;background:var(--azul,#0b3a5c);color:#fff;padding:10px 14px;border-left:4px solid var(--verde,#8dae2d);font:600 13px/1.2 var(--body,system-ui,sans-serif);text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.18)';
+    doc.body.appendChild(a);
+  })();
 })();

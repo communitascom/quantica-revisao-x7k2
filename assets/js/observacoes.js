@@ -8,7 +8,10 @@
   var DEMO=!(C.url&&C.key), TAB=C.tabela||'observacoes';
   var K_DEMO='qa_obs_demo_v1', K_AUTOR='qa_obs_autor_v1';
   var MV=location.pathname.match(/\/((?:sem|com)-laboratorio)\/([^\/]+)$/), VER=MV?MV[1]:'';
-  var PAG=MV?(MV[1]+'/'+MV[2]):(location.pathname.split('/').pop()||'index.html');
+  /* Rodada 2 em diante mora em /rodada-N/: a chave da página leva o prefixo, para os comentários de cada rodada não se misturarem */
+  var MR=location.pathname.match(/\/(rodada-\d+)\/((?:sem|com)-laboratorio(?:-nova)?)\/([^\/]+)$/), RODADA=MR?MR[1]:'';
+  var PAG=MR?(MR[1]+'/'+MR[2]+'/'+MR[3]):(MV?(MV[1]+'/'+MV[2]):(location.pathname.split('/').pop()||'index.html'));
+  var EM_PASTA=/\/(?:sem|com)-laboratorio(?:-nova)?\/[^\/]+$/.test(location.pathname);
   var TIPOS=[['texto','Texto'],['visual','Visual'],['estrutura','Estrutura'],['duvida','Dúvida']];
   var STATUS={novo:'Nova',em_analise:'Em análise',resolvido:'Resolvida',descartado:'Descartada'};
   var MOVIMENTO=!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -41,7 +44,8 @@
 
   function dataBr(iso){ try{ return new Date(iso).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
   function tituloCurto(t){ return (t||'').replace(/^Quântica Analítica \| /,'').replace(/ \(média fidelidade\)$/,''); }
-  function rotPagina(o){ var p=o.pagina||'', pre=p.indexOf('sem-laboratorio/')===0?'Sem laboratório · ':(p.indexOf('com-laboratorio/')===0?'Com laboratório · ':''); return pre+(tituloCurto(o.titulo)||p); }
+  function rotPagina(o){ var p=o.pagina||'', r='', m=p.match(/^rodada-(\d+)\//); if(m){ r='Rodada '+m[1]+' · '; p=p.replace(/^rodada-\d+\//,''); } else if(/^(sem|com)-laboratorio\//.test(p)){ r='Rodada 1 · '; }
+    var pre=p.indexOf('sem-laboratorio')===0?'Sem laboratório · ':(p.indexOf('com-laboratorio')===0?'Com laboratório · ':''); if(/-nova\//.test(p)) pre+='tipografia nova · '; return r+pre+(tituloCurto(o.titulo)||p); }
   function tipoRot(t){ for(var i=0;i<TIPOS.length;i++){ if(TIPOS[i][0]===t) return TIPOS[i][1]; } return 'Geral'; }
 
   /* ------------------------------------------------------------ painel (página Observações) */
@@ -200,7 +204,7 @@
       c.appendChild(b);
     });
     painelLista.appendChild(c);
-    var a=el('a','qao-todas','Ver as observações de todas as páginas'); a.href=(VER?'../':'')+'Quantica_Site_Layout_Observacoes.html'; painelLista.appendChild(a);
+    var a=el('a','qao-todas','Ver as observações de todas as páginas'); a.href=(EM_PASTA?'../':'')+(RODADA?'../':'')+'Quantica_Site_Layout_Observacoes.html'; painelLista.appendChild(a);
     painelLista.hidden=false; bLista.setAttribute('aria-expanded','true');
   }
   bLista.addEventListener('click',function(){ painelLista.hidden?abreLista():fechaLista(); });

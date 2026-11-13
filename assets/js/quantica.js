@@ -48,7 +48,7 @@
       var lista=(window.QA_PRODUTOS||[]).filter(function(p){ return !q||norm(p[0]+' '+p[1]).indexOf(q)>-1; }).slice(0,8);
       br.innerHTML=lista.length?lista.map(function(p){ var w=p[1].indexOf('Waters')===0; var im=p[2]?'<img src="assets/img/'+p[2]+'" alt="">':'<i></i>';
         return '<li><a href="'+(w?window.QA_WATERS:window.QA_FICHA)+'">'+im+'<span><b>'+p[0]+'</b><small>'+p[1]+'</small></span></a></li>'; }).join('')
-        :'<li class="busca-vazia">Nenhum equipamento com esse nome. <a class="link" href="Quantica_Site_Layout_Inst_Contato.html?assunto=equip">Falar com um especialista</a></li>'; };
+        :'<li class="busca-vazia">Nenhum equipamento com esse nome. <a class="link" href="Quantica_Site_Layout_Inst_Contato.html?assunto=equip">Falar com o especialista</a></li>'; };
     bb.addEventListener('click',function(){ var abre=bx.hidden; bx.hidden=!abre; bb.setAttribute('aria-expanded',abre); if(abre){ render(); bq.focus(); } });
     bq.addEventListener('input',render);
     doc.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!bx.hidden){ bx.hidden=true; bb.setAttribute('aria-expanded',false); bb.focus(); } });
@@ -122,14 +122,23 @@
 
   /* filtros de conteúdo (biblioteca, blog): só marca o chip, conteúdo real vem do WordPress */
   $$('.filtro-conteudo').forEach(function(g){ g.addEventListener('click',function(e){ var x=e.target.closest('.chip'); if(!x)return; $$('.chip',g).forEach(function(y){y.classList.toggle('on',y===x); y.setAttribute('aria-pressed',y===x)}); var v=x.dataset.v; $$('[data-cat]').forEach(function(c){ c.style.display=(v==='todos'||c.dataset.cat.split(' ').indexOf(v)>-1)?'':'none'; }); }); });
-  /* comparação entre rodadas: botão fixo que abre a mesma página na outra rodada (Rodada 1 fica congelada em /, a Rodada 2 em /rodada-2/) */
+  /* ficha: o índice lateral acompanha a seção que está na tela */
   (function(){
-    var m=location.pathname.match(/^(.*?\/)(rodada-2\/)?((?:sem|com)-laboratorio(?:-nova)?\/[^\/]+)$/); if(!m) return;
-    var r2=!!m[2], a=doc.createElement('a');
-    a.href=m[1]+(r2?'':'rodada-2/')+m[3];
-    a.textContent=r2?'Rodada 2 · 11/11 · ver a Rodada 1':'Rodada 1 · 23/10 · ver a Rodada 2';
-    a.setAttribute('data-rodada',r2?'2':'1');
-    a.style.cssText='position:fixed;left:16px;bottom:16px;z-index:70;background:var(--azul,#0b3a5c);color:#fff;padding:10px 14px;border-left:4px solid var(--verde,#8dae2d);font:600 13px/1.2 var(--body,system-ui,sans-serif);text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.18)';
-    doc.body.appendChild(a);
+    var nav=$('.ficha-idx'); if(!nav||!('IntersectionObserver' in window)) return;
+    var links=$$('a',nav), mapa={}; links.forEach(function(a){ mapa[a.getAttribute('href').slice(1)]=a; });
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ links.forEach(function(a){ a.classList.remove('on'); }); var a=mapa[e.target.id]; if(a) a.classList.add('on'); } }); },{rootMargin:'-20% 0px -65% 0px'});
+    $$('.ficha-bloco').forEach(function(s){ io.observe(s); }); if(links[0]) links[0].classList.add('on');
+  })();
+  /* comparação entre rodadas: caixa fixa com a rodada atual e links para a mesma página nas outras (Rodada 1 fica congelada em /, as seguintes em /rodada-N/) */
+  (function(){
+    var m=location.pathname.match(/^(.*?\/)(?:rodada-(\d+)\/)?((?:sem|com)-laboratorio(?:-nova)?\/[^\/]+)$/); if(!m) return;
+    var base=m[1], atual=m[2]?+m[2]:1, pg=m[3], datas={1:'23/10',2:'11/11',3:'13/11'};
+    var box=doc.createElement('div'); box.setAttribute('data-rodada',atual);
+    var h='<b>Rodada '+atual+' · '+datas[atual]+'</b><span style="opacity:.85"> · ver a </span>';
+    var outras=[3,2,1].filter(function(r){ return r!==atual; });
+    h+=outras.map(function(r){ return '<a href="'+base+(r===1?'':'rodada-'+r+'/')+pg+'" style="color:#fff;text-decoration:underline">Rodada '+r+'</a>'; }).join('<span style="opacity:.85"> ou </span>');
+    box.innerHTML=h;
+    box.style.cssText='position:fixed;left:16px;bottom:16px;z-index:70;background:var(--azul,#0b3a5c);color:#fff;padding:10px 14px;border-left:4px solid var(--verde,#8dae2d);font:500 13px/1.3 var(--body,system-ui,sans-serif);box-shadow:0 2px 10px rgba(0,0,0,.18)';
+    doc.body.appendChild(box);
   })();
 })();

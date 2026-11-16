@@ -1218,5 +1218,10 @@ main h1{line-height:1.1}
 .yt iframe{display:block;width:100%;aspect-ratio:16/9;border:0}
 .yt figcaption{font-size:14.5px;color:#4a525a;margin-top:10px}
 
+/* Rodada 4: o vídeo é item à parte; prévia em movimento dentro do player */
+.yt-play video{width:100%;height:100%;object-fit:cover;display:block;opacity:.95;transition:opacity .2s}
+.yt-play:hover video{opacity:1}
+.yt-dur{position:absolute;left:14px;bottom:14px;background:rgba(7,30,46,.82);color:#fff;font-size:12px;letter-spacing:.06em;padding:7px 10px}
+
 /* cantos retos em tudo (base visual 23/09) */
 *,*::before,*::after{border-radius:0!important}

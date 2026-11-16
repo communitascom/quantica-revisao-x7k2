@@ -118,7 +118,7 @@
   $$('.fase-toggle button').forEach(function(x){ x.addEventListener('click',function(){ doc.body.classList.toggle('ver-fase2',x.dataset.fase==='2'); $$('.fase-toggle button').forEach(function(y){y.classList.toggle('on',y===x)}); alinhaGrade(); medeLinhas(); }); });
 
   /* ficha: galeria */
-  $$('.galeria .miniaturas button').forEach(function(x){ x.addEventListener('click',function(){ var im=x.querySelector('img'); var p=$('.galeria .principal img'); if(im&&p){ p.src=im.src; p.alt=im.alt; } $$('.galeria .miniaturas button').forEach(function(y){y.classList.toggle('on',y===x)}); }); });
+  $$('.galeria .miniaturas button').forEach(function(x){ x.addEventListener('click',function(){ if(x.hasAttribute('data-ir')) return; var im=x.querySelector('img'); var p=$('.galeria .principal img'); if(im&&p){ p.src=im.src; p.alt=im.alt; } $$('.galeria .miniaturas button').forEach(function(y){y.classList.toggle('on',y===x)}); }); });
 
   /* filtros de conteúdo (biblioteca, blog): só marca o chip, conteúdo real vem do WordPress */
   $$('.filtro-conteudo').forEach(function(g){ g.addEventListener('click',function(e){ var x=e.target.closest('.chip'); if(!x)return; $$('.chip',g).forEach(function(y){y.classList.toggle('on',y===x); y.setAttribute('aria-pressed',y===x)}); var v=x.dataset.v; $$('[data-cat]').forEach(function(c){ c.style.display=(v==='todos'||c.dataset.cat.split(' ').indexOf(v)>-1)?'':'none'; }); }); });
@@ -133,9 +133,17 @@
       else { pr.classList.remove('tem-video'); v.pause(); }
     }); });
   })();
+  /* ficha: miniatura de vídeo depois das fotos; leva ao bloco "Veja em funcionamento" e já inicia o vídeo */
+  $$('.galeria .miniaturas button[data-ir]').forEach(function(x){ x.addEventListener('click',function(){
+    var alvo=doc.getElementById(x.getAttribute('data-ir')); if(!alvo) return;
+    var calmo=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    alvo.scrollIntoView({behavior:calmo?'auto':'smooth',block:'start'});
+    var pl=$('.yt-play',alvo); if(pl) pl.click();
+  }); });
   /* vídeo do YouTube: o iframe só entra na página quando a pessoa clica (nada do YouTube carrega antes) */
   $$('.yt[data-yt]').forEach(function(fig){
     var b=$('.yt-play',fig); if(!b) return;
+    var pv=$('video',b); if(pv&&window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){ pv.removeAttribute('autoplay'); pv.pause(); }
     b.addEventListener('click',function(){
       var f=doc.createElement('iframe'); f.src='https://www.youtube-nocookie.com/embed/'+fig.getAttribute('data-yt')+'?autoplay=1&rel=0&hl=pt-BR';
       f.title='Vídeo do fabricante, em inglês'; f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen'; f.setAttribute('allowfullscreen',''); f.setAttribute('referrerpolicy','strict-origin-when-cross-origin');

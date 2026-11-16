@@ -92,7 +92,7 @@
   var q=new URLSearchParams(location.search).get('assunto'); marcaAssunto(q||($('.assunto-sel')||{}).value);
 
   /* formulários: no protótipo, enviar leva à página de obrigado do assunto */
-  $$('form[data-envia]').forEach(function(fm){ fm.addEventListener('submit',function(e){ e.preventDefault(); var a=fm.dataset.envia; if(a==='assunto') a=fm.dataset.assunto||'equip'; location.href=(window.QA_OBRIGADO||'')+'?assunto='+a; }); });
+  $$('form[data-envia]').forEach(function(fm){ fm.addEventListener('submit',function(e){ e.preventDefault(); var a=fm.dataset.envia; if(a==='assunto') a=fm.dataset.assunto||'equip'; if(a==='waters'){ try{ window.open('https://www.waters.com/nextgen/br/pt.html','_blank','noopener'); }catch(x){} } location.href=(window.QA_OBRIGADO||'')+'?assunto='+a; }); });
   /* proposta vinda da ficha: o produto já chega preenchido */
   var pr=new URLSearchParams(location.search).get('produto'); if(pr){ var cx=$('#cx'); if(cx) cx.value='Produto: '+pr+'\n'; }
 

@@ -1054,6 +1054,10 @@ main h1{line-height:1.1}
   .degrau b{font-size:17px;overflow-wrap:anywhere}
 }
 
+.legal ul{margin:8px 0 0 20px;font-size:17px;line-height:1.7;color:#2b3036}
+.legal li{margin:4px 0}
+.legal a{color:var(--azul);text-decoration:underline}
+
 /* ============================================================================
    Rodada 3 (revisão de design, 12/11/2026). Entra depois do base e do paginas.
    Cantos retos continuam valendo: a regra final do build zera qualquer raio.
@@ -1222,6 +1226,15 @@ main h1{line-height:1.1}
 .yt-play video{width:100%;height:100%;object-fit:cover;display:block;opacity:.95;transition:opacity .2s}
 .yt-play:hover video{opacity:1}
 .yt-dur{position:absolute;left:14px;bottom:14px;background:rgba(7,30,46,.82);color:#fff;font-size:12px;letter-spacing:.06em;padding:7px 10px}
+
+/* foto vertical do MP Xtend: sem corte */
+img[src$="p-mp-xtend.webp"]{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;background:#EDEDED}
+.galeria .principal img[src$="p-mp-xtend.webp"]{position:absolute;inset:0}
+
+/* logos de clientes em cores (Home, Quem confia) */
+.logos-c.reais{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.logos-c.reais .logo-cli{height:84px;border:1px solid #DDE4EA;background:#fff;display:grid;place-items:center;padding:14px 18px}
+.logos-c.reais .logo-cli img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
 
 /* cantos retos em tudo (base visual 23/09) */
 *,*::before,*::after{border-radius:0!important}

@@ -122,6 +122,26 @@
 
   /* filtros de conteúdo (biblioteca, blog): só marca o chip, conteúdo real vem do WordPress */
   $$('.filtro-conteudo').forEach(function(g){ g.addEventListener('click',function(e){ var x=e.target.closest('.chip'); if(!x)return; $$('.chip',g).forEach(function(y){y.classList.toggle('on',y===x); y.setAttribute('aria-pressed',y===x)}); var v=x.dataset.v; $$('[data-cat]').forEach(function(c){ c.style.display=(v==='todos'||c.dataset.cat.split(' ').indexOf(v)>-1)?'':'none'; }); }); });
+  /* ficha: miniatura com vídeo (clipe curto, sem som). Toca ao clicar; com "reduzir movimento" não toca sozinho e mostra os controles */
+  (function(){
+    var g=$('.galeria'); if(!g) return; var pr=$('.principal',g); if(!pr||!$('.miniaturas button[data-video]',g)) return;
+    var v=doc.createElement('video'); v.muted=true; v.loop=true; v.playsInline=true; v.setAttribute('muted',''); v.setAttribute('playsinline','');
+    var calmo=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; if(calmo) v.controls=true; pr.appendChild(v);
+    $$('.miniaturas button',g).forEach(function(b){ b.addEventListener('click',function(){
+      var src=b.getAttribute('data-video');
+      if(src){ if(v.getAttribute('src')!==src){ v.src=src; v.poster=b.getAttribute('data-poster')||''; } pr.classList.add('tem-video'); if(!calmo){ var p=v.play(); if(p&&p.catch) p.catch(function(){}); } }
+      else { pr.classList.remove('tem-video'); v.pause(); }
+    }); });
+  })();
+  /* vídeo do YouTube: o iframe só entra na página quando a pessoa clica (nada do YouTube carrega antes) */
+  $$('.yt[data-yt]').forEach(function(fig){
+    var b=$('.yt-play',fig); if(!b) return;
+    b.addEventListener('click',function(){
+      var f=doc.createElement('iframe'); f.src='https://www.youtube-nocookie.com/embed/'+fig.getAttribute('data-yt')+'?autoplay=1&rel=0&hl=pt-BR';
+      f.title='Vídeo do fabricante, em inglês'; f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen'; f.setAttribute('allowfullscreen',''); f.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+      fig.replaceChild(f,b);
+    });
+  });
   /* ficha: o índice lateral acompanha a seção que está na tela */
   (function(){
     var nav=$('.ficha-idx'); if(!nav||!('IntersectionObserver' in window)) return;
@@ -132,10 +152,10 @@
   /* comparação entre rodadas: caixa fixa com a rodada atual e links para a mesma página nas outras (Rodada 1 fica congelada em /, as seguintes em /rodada-N/) */
   (function(){
     var m=location.pathname.match(/^(.*?\/)(?:rodada-(\d+)\/)?((?:sem|com)-laboratorio(?:-nova)?\/[^\/]+)$/); if(!m) return;
-    var base=m[1], atual=m[2]?+m[2]:1, pg=m[3], datas={1:'23/10',2:'11/11',3:'13/11'};
+    var base=m[1], atual=m[2]?+m[2]:1, pg=m[3], datas={1:'23/10',2:'11/11',3:'13/11',4:'16/11'};
     var box=doc.createElement('div'); box.setAttribute('data-rodada',atual);
     var h='<b>Rodada '+atual+' · '+datas[atual]+'</b><span style="opacity:.85"> · ver a </span>';
-    var outras=[3,2,1].filter(function(r){ return r!==atual; });
+    var outras=[4,3,2,1].filter(function(r){ return r!==atual; });
     h+=outras.map(function(r){ return '<a href="'+base+(r===1?'':'rodada-'+r+'/')+pg+'" style="color:#fff;text-decoration:underline">Rodada '+r+'</a>'; }).join('<span style="opacity:.85"> ou </span>');
     box.innerHTML=h;
     box.style.cssText='position:fixed;left:16px;bottom:16px;z-index:70;background:var(--azul,#0b3a5c);color:#fff;padding:10px 14px;border-left:4px solid var(--verde,#8dae2d);font:500 13px/1.3 var(--body,system-ui,sans-serif);box-shadow:0 2px 10px rgba(0,0,0,.18)';

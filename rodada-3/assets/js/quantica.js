@@ -132,10 +132,10 @@
   /* comparação entre rodadas: caixa fixa com a rodada atual e links para a mesma página nas outras (Rodada 1 fica congelada em /, as seguintes em /rodada-N/) */
   (function(){
     var m=location.pathname.match(/^(.*?\/)(?:rodada-(\d+)\/)?((?:sem|com)-laboratorio(?:-nova)?\/[^\/]+)$/); if(!m) return;
-    var base=m[1], atual=m[2]?+m[2]:1, pg=m[3], datas={1:'23/10',2:'11/11',3:'13/11'};
+    var base=m[1], atual=m[2]?+m[2]:1, pg=m[3], datas={1:'23/10',2:'11/11',3:'13/11',4:'16/11'};
     var box=doc.createElement('div'); box.setAttribute('data-rodada',atual);
     var h='<b>Rodada '+atual+' · '+datas[atual]+'</b><span style="opacity:.85"> · ver a </span>';
-    var outras=[3,2,1].filter(function(r){ return r!==atual; });
+    var outras=[4,3,2,1].filter(function(r){ return r!==atual; });
     h+=outras.map(function(r){ return '<a href="'+base+(r===1?'':'rodada-'+r+'/')+pg+'" style="color:#fff;text-decoration:underline">Rodada '+r+'</a>'; }).join('<span style="opacity:.85"> ou </span>');
     box.innerHTML=h;
     box.style.cssText='position:fixed;left:16px;bottom:16px;z-index:70;background:var(--azul,#0b3a5c);color:#fff;padding:10px 14px;border-left:4px solid var(--verde,#8dae2d);font:500 13px/1.3 var(--body,system-ui,sans-serif);box-shadow:0 2px 10px rgba(0,0,0,.18)';

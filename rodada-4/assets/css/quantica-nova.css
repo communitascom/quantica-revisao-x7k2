@@ -1083,11 +1083,12 @@ main h1{line-height:1.1}
 .hero.lab.com-video .veu{background:
   linear-gradient(90deg,rgba(9,36,58,.9) 0%,rgba(9,36,58,.7) 38%,rgba(9,36,58,.34) 70%,rgba(9,36,58,.4) 100%),
   linear-gradient(0deg,rgba(9,36,58,.5) 0%,rgba(9,36,58,0) 45%)}
-@media (prefers-reduced-motion:reduce){ .hero .fundo-video{display:none} }
+/* o vídeo do topo toca sempre (17/11: o Mac do Junior tem Reduzir movimento ligado e escondia o vídeo); o botão de pausa fica no canto (WCAG 2.2.2) */
 
 /* ---------- parceiros: só os logos ---------- */
-.parceiros .wrap{min-height:88px;gap:48px}
-.parc img.l-sotax{height:56px}
+.parceiros .wrap{min-height:96px;gap:48px}
+.parc img.l-sotax{height:84px}
+@media (max-width:900px){.parc img.l-sotax{height:72px}}
 .parc img.l-waters{height:22px}
 
 /* ---------- áreas de atuação: um bloco principal e dois de apoio ---------- */
@@ -1235,6 +1236,21 @@ img[src$="p-mp-xtend.webp"]{width:100%!important;height:100%!important;object-fi
 .logos-c.reais{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
 .logos-c.reais .logo-cli{height:84px;border:1px solid #DDE4EA;background:#fff;display:grid;place-items:center;padding:14px 18px}
 .logos-c.reais .logo-cli img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+
+/* ---------- Rodada 4 · ajustes da Home (17/11) ---------- */
+/* botão de pausa do vídeo de fundo */
+.hero .pausa-video{position:absolute;z-index:5;right:16px;bottom:16px;width:40px;height:40px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.7);background:rgba(7,30,46,.55);color:#fff;border-radius:0;cursor:pointer;padding:0}
+.hero .pausa-video:hover{background:rgba(7,30,46,.85)}
+.hero .pausa-video svg{width:16px;height:16px;fill:currentColor}
+.hero .pausa-video .i-play{display:none}
+.hero .pausa-video.parado .i-play{display:block}
+.hero .pausa-video.parado .i-pausa{display:none}
+/* Quem confia: logos de clientes em 4 colunas e cerca de 18% maiores */
+.logos-c.reais{grid-template-columns:repeat(4,minmax(0,1fr))}
+.logos-c.reais .logo-cli{height:94px;padding:14px 27px}
+@media (max-width:900px){.logos-c.reais{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}.logos-c.reais .logo-cli{padding:14px 20px}}
+/* logo da Quântica no rodapé, 15% maior */
+.rodape .rod-marca img{height:46px}
 
 /* cantos retos em tudo (base visual 23/09) */
 *,*::before,*::after{border-radius:0!important}

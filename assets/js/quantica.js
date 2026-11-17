@@ -170,3 +170,17 @@
     doc.body.appendChild(box);
   })();
 })();
+
+/* botão de pausa para o vídeo de fundo do topo */
+(function(){
+  [].slice.call(document.querySelectorAll('.hero .fundo-video')).forEach(function(v){
+    var b=document.createElement('button');
+    b.type='button'; b.className='pausa-video'; b.setAttribute('aria-label','Pausar o vídeo de fundo');
+    b.innerHTML='<svg class="i-pausa" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12"/><rect x="9.5" y="2" width="3.5" height="12"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z"/></svg>';
+    b.addEventListener('click',function(){
+      if(v.paused){v.play(); b.classList.remove('parado'); b.setAttribute('aria-label','Pausar o vídeo de fundo');}
+      else{v.pause(); b.classList.add('parado'); b.setAttribute('aria-label','Tocar o vídeo de fundo');}
+    });
+    v.parentNode.appendChild(b);
+  });
+})();

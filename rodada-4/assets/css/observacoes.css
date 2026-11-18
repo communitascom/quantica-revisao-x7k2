@@ -109,3 +109,9 @@ body.qao-on .qao *,body.qao-on .qao-pin{cursor:pointer}
 
 /* o atributo hidden sempre vence o display dos componentes */
 .qao [hidden],.qao-pins [hidden],.qao-painel[hidden],.qao-pop[hidden],.qao-toast[hidden],.qao-barra[hidden],.qao-hover[hidden]{display:none!important}
+
+/* fila de reenvio: aviso fixo quando há observações que ainda não chegaram ao servidor */
+.qao-fila{position:fixed;top:84px;right:16px;z-index:2147483300;width:min(340px,calc(100vw - 32px));background:#FFF4DC;border:1px solid #D9A44E;border-left:4px solid #D9A44E;color:#4a3200;padding:12px 14px;font-size:14px;line-height:1.45;box-shadow:0 8px 24px rgba(7,47,74,.18)}
+.qao-fila strong{display:block;margin-bottom:2px}
+.qao-fila button{margin:10px 10px 0 0;padding:7px 12px;font:inherit;font-size:13px;background:#fff;color:#0B466E;border:1px solid #0B466E;cursor:pointer}
+.qao-fila[hidden]{display:none!important}

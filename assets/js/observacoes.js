@@ -34,10 +34,17 @@
     envia:function(o){
       if(DEMO){ var a=demoLer(); o.id=Date.now(); o.criado_em=new Date().toISOString(); o.status='novo'; a.push(o); armazena(K_DEMO,JSON.stringify(a)); return Promise.resolve(o); }
       var h=hdr(); h['Prefer']='return=representation';
-      return fetch(C.url+'/rest/v1/'+TAB,{method:'POST',headers:h,body:JSON.stringify(o)}).then(function(r){
+      var ctl=(typeof AbortController!=='undefined')?new AbortController():null, to=setTimeout(function(){ if(ctl) ctl.abort(); },20000);
+      return fetch(C.url+'/rest/v1/'+TAB,{method:'POST',headers:h,body:JSON.stringify(o),signal:ctl?ctl.signal:undefined}).then(function(r){
         if(!r.ok) return r.text().then(function(t){ throw new Error(t||('erro '+r.status)); });
         return r.json();
-      }).then(function(a){ return a[0]; });
+      }).then(function(a){ clearTimeout(to); return a[0]; },function(e){ clearTimeout(to); throw e; });
+    },
+    /* usado no reenvio: se a observação já chegou (a resposta é que se perdeu), não envia de novo */
+    existe:function(o){
+      if(DEMO) return Promise.resolve(false);
+      var q=C.url+'/rest/v1/'+TAB+'?select=id&limit=1&pagina=eq.'+encodeURIComponent(o.pagina)+'&autor=eq.'+encodeURIComponent(o.autor)+'&comentario=eq.'+encodeURIComponent(o.comentario);
+      return fetch(q,{headers:hdr()}).then(function(r){ if(!r.ok) throw new Error('erro '+r.status); return r.json(); }).then(function(a){ return a.length?a[0]:false; });
     }
   };
   window.QA_OBSAPI=API;
@@ -164,10 +171,11 @@
       var payload={pagina:PAG,titulo:doc.title,url:location.href.split('#')[0].slice(0,300),seletor:ctx.seletor.slice(0,600),trecho:ctx.trecho,fx:ctx.fx,fy:ctx.fy,vw:innerWidth,vh:innerHeight,tipo:tp,comentario:txt,autor:autor,email:ml.value.trim()||null,agente:navigator.userAgent.slice(0,300)};
       API.envia(payload).then(function(o){
         armazena(K_AUTOR,autor); armazena(K_AUTOR+'_mail',ml.value.trim());
-        obs.push(o); desenhaPins(); fechaPop(); aviso(DEMO?'Guardado só neste navegador (modo demonstração).':'Observação enviada. Obrigado!');
+        obs.push(o); desenhaPins(); fechaPop(); aviso(DEMO?'Guardado só neste navegador (modo demonstração).':'Observação enviada'+(o&&o.id?' (nº '+o.id+')':'')+'. Obrigado!');
       }).catch(function(){
-        env.disabled=false; env.textContent='Enviar observação';
-        st.textContent='Não foi possível enviar agora. O texto continua aqui: tente de novo em instantes.';
+        armazena(K_AUTOR,autor); armazena(K_AUTOR+'_mail',ml.value.trim());
+        guardaNaFila(payload); fechaPop();
+        aviso('Sem conexão com o servidor agora. Guardamos a observação neste navegador e enviamos sozinhos quando a conexão voltar.');
       });
     });
     pop.appendChild(corpo); pop.hidden=false; posiciona(cx,cy); ta.focus();
@@ -214,12 +222,53 @@
     setTimeout(function(){ mostra(o,i); },MOVIMENTO?450:0);
   }
 
+  /* ------------------------------------------------------------ fila de reenvio
+     Se o servidor não responde (projeto pausado, rede, bloqueio), a observação fica guardada neste navegador
+     e é enviada sozinha quando a conexão volta. Antes de reenviar, confere se ela já não chegou. */
+  var K_FILA='qa_obs_fila_v1', enviando=false;
+  function filaLer(){ try{ var a=JSON.parse(le(K_FILA)||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+  function filaGravar(a){ armazena(K_FILA,JSON.stringify(a)); atualizaFila(); }
+  function guardaNaFila(p){ var a=filaLer(); a.push({p:p,ts:new Date().toISOString()}); filaGravar(a); }
+  var filaEl=el('div','qao-fila'); filaEl.hidden=true; filaEl.setAttribute('role','status'); raiz.appendChild(filaEl);
+  function atualizaFila(){
+    var n=filaLer().length; filaEl.textContent='';
+    if(!n){ filaEl.hidden=true; return; }
+    filaEl.appendChild(el('strong',null,n===1?'1 observação aguardando envio.':(n+' observações aguardando envio.')));
+    filaEl.appendChild(el('span',null,' Ficam guardadas neste navegador e seguem sozinhas quando a conexão voltar.'));
+    var b1=el('button',null,'Enviar agora'); b1.type='button'; b1.addEventListener('click',function(){ tentaFila(true); });
+    var b2=el('button',null,'Copiar o texto'); b2.type='button'; b2.addEventListener('click',copiaFila);
+    filaEl.appendChild(b1); filaEl.appendChild(b2); filaEl.hidden=false;
+  }
+  function copiaFila(){
+    var t=filaLer().map(function(x){ return '- ['+tituloCurto(x.p.titulo)+'] '+x.p.autor+': '+x.p.comentario+(x.p.trecho?' | Sobre: '+x.p.trecho:'')+' | '+x.p.pagina; }).join('\n');
+    function ok(){ aviso('Texto copiado. Se o envio não voltar, mande por WhatsApp ou e-mail para a Communitas.'); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok,ok); }
+    else { var ta=el('textarea'); ta.value=t; doc.body.appendChild(ta); ta.select(); try{ doc.execCommand('copy'); }catch(e){} ta.remove(); ok(); }
+  }
+  function tentaFila(manual){
+    if(enviando||DEMO||!filaLer().length) return; enviando=true; var enviadas=0;
+    function fim(){ enviando=false; if(enviadas) aviso(enviadas===1?'Observação enviada. Obrigado!':(enviadas+' observações enviadas. Obrigado!')); }
+    (function prox(){
+      var a=filaLer(); if(!a.length){ fim(); return; }
+      var item=a[0];
+      API.existe(item.p).then(function(ja){ return ja?ja:API.envia(item.p); }).then(function(o){
+        filaGravar(filaLer().slice(1)); enviadas++;
+        if(o&&o.pagina===PAG&&o.comentario){ obs.push(o); desenhaPins(); }
+        prox();
+      }).catch(function(){ fim(); if(manual) aviso('Ainda sem conexão com o servidor. Tentaremos de novo em instantes.'); });
+    })();
+  }
+  setInterval(function(){ tentaFila(false); },60000);
+  addEventListener('online',function(){ tentaFila(false); });
+  doc.addEventListener('visibilitychange',function(){ if(doc.visibilityState==='visible') tentaFila(false); });
+  atualizaFila(); setTimeout(function(){ tentaFila(false); },1500);
+
   /* ------------------------------------------------------------ carga inicial */
   API.lista(PAG).then(function(l){
     obs=l||[]; desenhaPins();
     var alvo=new URLSearchParams(location.search).get('obs');
     if(alvo){ for(var i=0;i<obs.length;i++){ if(String(obs[i].id)===alvo){ irPara(obs[i],i); break; } } }
-  }).catch(function(){ pill.classList.add('sem-rede'); pill.title='Não foi possível carregar as observações agora. Você ainda pode comentar.'; });
+  }).catch(function(){ pill.classList.add('sem-rede'); pill.title='Não foi possível carregar as observações agora. Você ainda pode comentar.'; aviso('Sem conexão com o servidor de observações. Você ainda pode comentar: guardamos e enviamos quando a conexão voltar.'); });
 
   /* ------------------------------------------------------------ painel (página Observações) */
   function painel(){

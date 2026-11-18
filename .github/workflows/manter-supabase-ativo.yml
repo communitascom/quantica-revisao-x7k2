@@ -1,11 +1,14 @@
 # Mantém acordado o projeto Supabase das observações (quantica-revisao-site).
-# O plano gratuito pausa o projeto depois de 7 dias sem uso; esta consulta roda a cada 3 dias.
-# Usa a chave anon que já é pública no site (assets/js/observacoes-config.js), só para leitura.
+# O plano gratuito pausa o projeto depois de 7 dias sem atividade. Uma simples leitura (GET) não foi suficiente:
+# entre 04 e 10/11/2026 o projeto estava pausado mesmo com esta rotina rodando. Por isso agora ela ESCREVE uma linha
+# na tabela public.keepalive (escrita real no banco) e confere a leitura da tabela de observações.
+# Roda a cada 2 dias. Se qualquer passo falhar, a execução fica vermelha e o GitHub avisa por e-mail.
+# Usa a chave anon que já é pública no site (assets/js/observacoes-config.js); a política da tabela só aceita origem "github-actions".
 name: Manter Supabase ativo
 
 on:
   schedule:
-    - cron: "17 11 */3 * *"
+    - cron: "17 11 */2 * *"
   workflow_dispatch:
 
 jobs:
@@ -13,13 +16,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Consulta a tabela de observações
+      - name: Escreve no banco e confere a leitura
         run: |
           CFG=assets/js/observacoes-config.js
           URL=$(grep -o 'https://[a-z0-9]*\.supabase\.co' "$CFG")
           KEY=$(grep -o 'eyJ[^"]*' "$CFG")
-          CODE=$(curl -s -o /dev/null -w '%{http_code}' -m 30 \
-            "$URL/rest/v1/observacoes?select=id&limit=1" \
-            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
-          echo "Supabase respondeu HTTP $CODE"
-          test "$CODE" = "200"
+          escreve() {
+            curl -s -o /dev/null -w '%{http_code}' -m 30 -X POST "$URL/rest/v1/keepalive" \
+              -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+              -d '{"origem":"github-actions"}'
+          }
+          le() {
+            curl -s -o /dev/null -w '%{http_code}' -m 30 \
+              "$URL/rest/v1/observacoes?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY"
+          }
+          for tentativa in 1 2 3; do
+            W=$(escreve); R=$(le)
+            echo "Tentativa $tentativa: escrita HTTP $W, leitura HTTP $R"
+            if [ "$W" = "201" ] && [ "$R" = "200" ]; then exit 0; fi
+            sleep 60
+          done
+          echo "Supabase não respondeu como esperado: o projeto pode estar pausado. Reative em https://supabase.com/dashboard/project/sgpsxkcpnbiafubqklzn"
+          exit 1

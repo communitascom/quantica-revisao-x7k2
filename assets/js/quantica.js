@@ -184,3 +184,79 @@
     v.parentNode.appendChild(b);
   });
 })();
+
+/* Simulação de consentimento LGPD (protótipo): banner, preferências, bloqueio do mapa e registro da escolha.
+   No site final (WordPress) isto vira um plugin de consentimento com registro de data, versão do texto e escolhas,
+   ligado ao Google Consent Mode v2 (analytics_storage, ad_storage, ad_user_data, ad_personalization). */
+(function(){
+  if(!/\/(?:sem|com)-laboratorio(?:-nova)?\//.test(location.pathname)) return;
+  var doc=document, K='qa_consent_v1', VERSAO=1;
+  function el(tag,cls,txt){ var e=doc.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+  function ler(){ try{ var c=JSON.parse(localStorage.getItem(K)||'null'); return (c&&c.v===VERSAO)?c:null; }catch(e){ return null; } }
+  function gravar(c){ c.v=VERSAO; c.ts=new Date().toISOString(); try{ localStorage.setItem(K,JSON.stringify(c)); }catch(e){} aplicar(c); }
+  function mapa(on,forca){
+    var f=doc.querySelector('.mapa iframe[data-src]'), b=doc.querySelector('.mapa-bloq'); if(!f) return;
+    if(on||forca){ if(!f.getAttribute('src')) f.setAttribute('src',f.getAttribute('data-src')); if(b) b.hidden=true; }
+    else { f.removeAttribute('src'); if(b) b.hidden=false; }
+  }
+  function aplicar(c){ window.QA_CONSENT=c; mapa(!!c.terceiros); try{ doc.dispatchEvent(new CustomEvent('qa-consent',{detail:c})); }catch(e){} }
+  var link=doc.querySelector('a[href*="Apoio_Privacidade"]'), HREF_POL=link?link.getAttribute('href'):'#';
+  function btn(txt,cls,fn){ var b=el('button','btn '+cls,txt); b.type='button'; b.addEventListener('click',fn); return b; }
+  function dataBr(iso){ try{ return new Date(iso).toLocaleDateString('pt-BR'); }catch(e){ return ''; } }
+
+  var banner=null, modal=null, anterior=null;
+  function fechaBanner(){ if(banner){ banner.remove(); banner=null; } }
+  function escolhe(m,t,mk){ gravar({medicao:m,marketing:mk,terceiros:t}); fechaBanner(); fechaModal(); }
+  function todos(){ escolhe(true,true,true); }
+  function recusa(){ escolhe(false,false,false); }
+
+  function mostraBanner(){
+    banner=el('section','qa-ck'); banner.setAttribute('aria-label','Cookies e privacidade');
+    var p=el('p',null,'Usamos cookies para o site funcionar e para melhorar a sua experiência. ');
+    var a=el('a',null,'Política de privacidade'); a.href=HREF_POL; p.appendChild(a); banner.appendChild(p);
+    var ac=el('div','qa-ck-acoes');
+    ac.appendChild(btn('Aceitar','btn-verde',todos));
+    ac.appendChild(btn('Recusar','btn-contorno-azul',recusa));
+    var pz=el('button','qa-ck-link','Preferências'); pz.type='button'; pz.addEventListener('click',function(){ abreModal(); }); ac.appendChild(pz);
+    banner.appendChild(ac); doc.body.appendChild(banner);
+  }
+
+  var CATS=[['essenciais','Essenciais','Necessários para o site funcionar e para guardar esta escolha. Ficam sempre ativos.',true],
+            ['medicao','Medição','Mostram como o site é usado, sem identificar você. Servem para melhorar o conteúdo (Google Analytics, via Tag Manager).',false],
+            ['marketing','Marketing','Medem as campanhas e permitem anúncios mais relevantes (Google Ads e Meta).',false],
+            ['terceiros','Conteúdo de terceiros','Mapa do Google e vídeos do YouTube. Esses serviços recebem o seu endereço IP.',false]];
+  function abreModal(){
+    if(modal) return; anterior=doc.activeElement; var atual=ler()||{};
+    modal=el('div','qa-ck-fundo'); modal.addEventListener('click',function(e){ if(e.target===modal) fechaModal(); });
+    var cx=el('div','qa-ck-modal'); cx.setAttribute('role','dialog'); cx.setAttribute('aria-modal','true'); cx.setAttribute('aria-labelledby','qa-ck-t');
+    var x=el('button','qa-ck-x','Fechar'); x.type='button'; x.addEventListener('click',fechaModal); cx.appendChild(x);
+    var h=el('h2',null,'Preferências de cookies'); h.id='qa-ck-t'; cx.appendChild(h);
+    cx.appendChild(el('p','qa-ck-intro','Escolha o que podemos usar. A recusa não tira nada do que você precisa para navegar e pedir contato.'));
+    var checks={};
+    CATS.forEach(function(c){
+      var lb=el('label','qa-ck-cat'); var cb=el('input'); cb.type='checkbox'; cb.checked=c[3]||!!atual[c[0]]; cb.disabled=c[3]; checks[c[0]]=cb;
+      var sp=el('span'); sp.appendChild(el('b',null,c[1])); sp.appendChild(el('small',null,c[2])); lb.appendChild(cb); lb.appendChild(sp); cx.appendChild(lb);
+    });
+    var ac=el('div','qa-ck-acoes');
+    ac.appendChild(btn('Salvar escolhas','btn-verde',function(){ escolhe(checks.medicao.checked,checks.terceiros.checked,checks.marketing.checked); }));
+    ac.appendChild(btn('Aceitar todos','btn-contorno-azul',todos));
+    ac.appendChild(btn('Recusar não essenciais','btn-contorno-azul',recusa));
+    cx.appendChild(ac);
+    var nota=el('p','qa-ck-nota', atual.ts?('Sua escolha de '+dataBr(atual.ts)+' fica guardada neste navegador. '):'');
+    nota.appendChild(doc.createTextNode('No site final, o plugin registra a data, a versão do texto e as escolhas, como prova do consentimento. '));
+    var a2=el('a',null,'Política de privacidade'); a2.href=HREF_POL; nota.appendChild(a2); cx.appendChild(nota);
+    modal.appendChild(cx); doc.body.appendChild(modal); x.focus();
+    modal.addEventListener('keydown',function(e){
+      if(e.key==='Escape'){ fechaModal(); return; }
+      if(e.key!=='Tab') return;
+      var f=[].slice.call(cx.querySelectorAll('button,input:not([disabled]),a[href]')); if(!f.length) return;
+      var i=f.indexOf(doc.activeElement);
+      if(e.shiftKey&&(i<=0)){ e.preventDefault(); f[f.length-1].focus(); } else if(!e.shiftKey&&i===f.length-1){ e.preventDefault(); f[0].focus(); }
+    });
+  }
+  function fechaModal(){ if(modal){ modal.remove(); modal=null; if(anterior&&anterior.focus) anterior.focus(); } }
+
+  [].slice.call(doc.querySelectorAll('[data-qa-cookies]')).forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); abreModal(); }); });
+  var bm=doc.querySelector('[data-qa-mapa]'); if(bm) bm.addEventListener('click',function(){ mapa(false,true); });
+  var c0=ler(); if(c0) aplicar(c0); else { aplicar({medicao:false,marketing:false,terceiros:false}); mostraBanner(); }
+})();
